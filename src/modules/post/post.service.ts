@@ -1,0 +1,56 @@
+import { prisma } from "../../lib/prisma"
+import { ICreatePostPayload } from "./post.interface"
+
+const createPost = async (payload: ICreatePostPayload, userId: string) => {
+
+    const result = await prisma.post.create({
+        data: {
+            ...payload,
+            authorId: userId
+        }
+    })
+
+    return result
+}
+
+const getAllPosts = async () => {
+    const posts = await prisma.post.findMany({
+        include: {
+            author: {
+                omit: {
+                    password: true,
+                }
+            },
+            comments: true,
+        }
+    })
+    return posts
+}
+
+const getMyPosts = async () => {
+
+}
+
+const getPostsStats = async () => {
+
+}
+
+const getPostById = async () => {
+
+}
+const updatePostById = async () => {
+
+}
+const deletePostById = async () => {
+
+}
+
+export const postService = {
+    createPost,
+    getAllPosts,
+    getMyPosts,
+    getPostsStats,
+    getPostById,
+    updatePostById,
+    deletePostById,
+}
