@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateCommentPayload, IUpdateCommentPayload } from "./comment.interface"
+import { ICommentStatus, ICreateCommentPayload, IUpdateCommentPayload } from "./comment.interface"
 
 const createComment = async (payload: ICreateCommentPayload, authorId: string) => {
 
@@ -65,7 +65,50 @@ const getCommentByCommentId = async (commentId: string) => {
     return result
 }
 
-const updateComment = async (payload: IUpdateCommentPayload, commentId: string, authorId: string, isAdmin: boolean) => {
+const updateComment = async (payload: IUpdateCommentPayload, commentId: string, authorId: string) => {
+
+    await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+            authorId,
+        },
+    })
+
+    const result = await prisma.comment.update({
+        where: {
+            id: commentId,
+            authorId
+        },
+        data: payload
+    })
+
+    return result;
+}
+
+const deleteComment = async (commentId: string, authorId: string) => {
+
+    await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+            authorId,
+        },
+    })
+
+    await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+        },
+    })
+
+    await prisma.comment.delete({
+        where: {
+            id: commentId
+        }
+    })
+}
+
+const moderateComment = async (payload: ICommentStatus, commentId: string) => {
+    const { status } = payload;
 
     const comment = await prisma.comment.findUniqueOrThrow({
         where: {
@@ -73,8 +116,8 @@ const updateComment = async (payload: IUpdateCommentPayload, commentId: string, 
         },
     })
 
-    if (!isAdmin && comment.authorId !== authorId) {
-        throw new Error("You are not the owner of this post")
+    if (status === comment.status) {
+        throw new Error("This status is already given")
     }
 
     const result = await prisma.comment.update({
@@ -82,15 +125,11 @@ const updateComment = async (payload: IUpdateCommentPayload, commentId: string, 
             id: commentId
         },
         data: {
-            content: payload.content
-        },
+            status
+        }
     })
 
-    return result;
-}
-
-const deleteComment = async () => {
-
+    return result
 }
 
 export const commentService = {
@@ -99,4 +138,5 @@ export const commentService = {
     getCommentByCommentId,
     updateComment,
     deleteComment,
+    moderateComment,
 }
