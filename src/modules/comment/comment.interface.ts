@@ -5,3 +5,7 @@ export interface ICreateCommentPayload {
     postId: string
     status?: CommentStatus,
 }
+
+export interface IUpdateCommentPayload {
+    content: string,
+}

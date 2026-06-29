@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateCommentPayload } from "./comment.interface"
+import { ICreateCommentPayload, IUpdateCommentPayload } from "./comment.interface"
 
 const createComment = async (payload: ICreateCommentPayload, authorId: string) => {
 
@@ -65,8 +65,28 @@ const getCommentByCommentId = async (commentId: string) => {
     return result
 }
 
-const updateComment = async () => {
+const updateComment = async (payload: IUpdateCommentPayload, commentId: string, authorId: string, isAdmin: boolean) => {
 
+    const comment = await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+        },
+    })
+
+    if (!isAdmin && comment.authorId !== authorId) {
+        throw new Error("You are not the owner of this post")
+    }
+
+    const result = await prisma.comment.update({
+        where: {
+            id: commentId
+        },
+        data: {
+            content: payload.content
+        },
+    })
+
+    return result;
 }
 
 const deleteComment = async () => {

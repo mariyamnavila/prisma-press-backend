@@ -48,6 +48,20 @@ const getCommentByCommentId = catchAsync(async (req: Request, res: Response, nex
 
 const updateComment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
+    const authorId = req.user?.id;
+    const isAdmin = req.user?.role === "ADMIN";
+
+    const { commentId } = req.params;
+    const payload = req.body;
+
+    const result = await commentService.updateComment(payload, commentId as string, authorId as string, isAdmin);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Comment updated successfully",
+        data: result
+    })
 })
 
 const deleteComment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
