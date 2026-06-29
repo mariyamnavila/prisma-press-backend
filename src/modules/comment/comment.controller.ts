@@ -19,6 +19,16 @@ const createComment = catchAsync(async (req: Request, res: Response, next: NextF
 })
 
 const getCommentByAuthorId = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { authorId } = req.params;
+
+    const result = await commentService.getCommentByAuthorId(authorId as string);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Comment retrieved by author successfully",
+        data: result
+    })
 
 })
 

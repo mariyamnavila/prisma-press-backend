@@ -18,15 +18,41 @@ const createComment = async (payload: ICreateCommentPayload, authorId: string) =
 
     return result
 }
-const getCommentByAuthorId = async () => {
+const getCommentByAuthorId = async (authorId: string) => {
+    await prisma.user.findUniqueOrThrow({
+        where: {
+            id: authorId,
+        },
+    })
 
+    const allCommentsByAuthor = await prisma.comment.findMany({
+        where: {
+            authorId
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        include: {
+            post: {
+                select: {
+                    id: true,
+                    title: true,
+                },
+            },
+        },
+    })
+
+    return allCommentsByAuthor
 }
+
 const getCommentByCommentId = async () => {
 
 }
+
 const updateComment = async () => {
 
 }
+
 const deleteComment = async () => {
 
 }
